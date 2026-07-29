@@ -452,27 +452,33 @@ function DivergencesPanel({ items }: { items: ManifestItem[] }) {
               </div>
               <StatusBadge status={itemStatus(i)} />
             </div>
-            <div className="grid gap-2">
-              {rows.map((r, j) => (
-                <div
-                  key={j}
-                  className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-3 rounded-md border border-border bg-background/40 p-2 text-sm"
-                >
-                  <div>
-                    <div className="text-[10px] uppercase text-muted-foreground">Campo</div>
-                    <div className="font-medium">{r.field}</div>
+            {rows.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                Os valores comparativos não estavam disponíveis nesta análise.
+              </p>
+            ) : (
+              <div className="grid gap-2">
+                {rows.map((r, j) => (
+                  <div
+                    key={j}
+                    className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)] gap-3 rounded-md border border-border bg-background/40 p-2 text-sm"
+                  >
+                    <div>
+                      <div className="text-[10px] uppercase text-muted-foreground">Campo</div>
+                      <div className="font-medium">{r.field}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase text-muted-foreground">Esperado</div>
+                      <div className="font-mono text-success">{r.expected}</div>
+                    </div>
+                    <div>
+                      <div className="text-[10px] uppercase text-muted-foreground">Recebido</div>
+                      <div className="font-mono text-destructive">{r.received}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-[10px] uppercase text-muted-foreground">Esperado</div>
-                    <div className="font-mono text-success">{r.expected}</div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] uppercase text-muted-foreground">Recebido</div>
-                    <div className="font-mono text-destructive">{r.received}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </Card>
         );
       })}
@@ -480,26 +486,64 @@ function DivergencesPanel({ items }: { items: ManifestItem[] }) {
   );
 }
 
+function hasValue(value: unknown): boolean {
+  return value !== undefined && value !== null && String(value).trim() !== "";
+}
+
+function cleanText(value: unknown): string {
+  return String(value ?? "")
+    .trim()
+    .replace(/^["']+|["']+$/g, "")
+    .trim();
+}
+
+function normalizeContainer(value: unknown): string {
+  return cleanText(value).toUpperCase();
+}
+
 function buildDivergenceRows(i: ManifestItem) {
   const rows: { field: string; expected: string; received: string }[] = [];
-  const push = (field: string, expected: unknown, received: unknown) => {
-    if (isRenderable(expected) || isRenderable(received)) {
-      rows.push({
-        field,
-        expected: isRenderable(expected) ? String(expected) : "—",
-        received: isRenderable(received) ? String(received) : "—",
-      });
-    }
+  const seen = new Set<string>();
+  const add = (campo: string, expected: unknown, received: unknown) => {
+    const key = cleanText(campo).toLowerCase();
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    rows.push({ field: campo, expected: cleanText(expected), received: cleanText(received) });
   };
-  push("Quantidade", i.quantidadeEsperada, i.quantidadeRecebida ?? i.quantidade);
-  push("Peso", i.pesoEsperado, i.pesoRecebido ?? i.peso);
-  push("Contêiner", i.containerEsperado, i.containerRecebido ?? i.container);
-  if (i.campoDivergente) {
-    push(String(i.campoDivergente), i.valorEsperado, i.valorRecebido);
+
+  if (
+    hasValue(i.quantidadeEsperada) &&
+    hasValue(i.quantidadeRecebida) &&
+    Number(i.quantidadeEsperada) !== Number(i.quantidadeRecebida)
+  ) {
+    add("Quantidade", i.quantidadeEsperada, i.quantidadeRecebida);
   }
-  if (!rows.length) {
-    rows.push({ field: "Status", expected: "OK", received: itemStatus(i) || "Divergente" });
+
+  if (
+    hasValue(i.pesoEsperado) &&
+    hasValue(i.pesoRecebido) &&
+    Number(i.pesoEsperado) !== Number(i.pesoRecebido)
+  ) {
+    add("Peso", i.pesoEsperado, i.pesoRecebido);
   }
+
+  if (
+    hasValue(i.containerEsperado) &&
+    hasValue(i.containerRecebido) &&
+    normalizeContainer(i.containerEsperado) !== normalizeContainer(i.containerRecebido)
+  ) {
+    add("Contêiner", i.containerEsperado, i.containerRecebido);
+  }
+
+  if (
+    rows.length === 0 &&
+    hasValue(i.campoDivergente) &&
+    hasValue(i.valorEsperado) &&
+    hasValue(i.valorRecebido)
+  ) {
+    add(cleanText(i.campoDivergente), i.valorEsperado, i.valorRecebido);
+  }
+
   return rows;
 }
 
@@ -529,80 +573,6 @@ function InfoPanel({ info, containers }: { info: Record<string, string | number>
   );
 }
 
-function WebhookPanel({ result }: { result: AnalysisResult }) {
-  const w = result.webhook;
-  const pretty = JSON.stringify(w.parsedResponse ?? w.rawResponse, null, 2);
-  const copy = async () => {
-    await navigator.clipboard.writeText(pretty);
-    toast.success("JSON copiado");
-  };
-  return (
-    <div className="space-y-3">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <MetaCard icon={<Globe className="h-4 w-4" />} label="URL do webhook" value={w.url} mono />
-        <MetaCard
-          icon={<ShieldCheck className="h-4 w-4" />}
-          label="Status HTTP"
-          value={`${w.status} ${w.statusText || ""}`.trim()}
-        />
-        <MetaCard icon={<Clock className="h-4 w-4" />} label="Tempo de execução" value={`${w.durationMs} ms`} />
-        <MetaCard
-          icon={<FileText className="h-4 w-4" />}
-          label="Enviado em"
-          value={new Date(w.sentAt).toLocaleString("pt-BR")}
-        />
-      </div>
-
-      <Card className="p-4">
-        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-          Dados enviados (FormData)
-        </div>
-        <pre className="overflow-auto rounded-md bg-background/60 p-3 text-xs">
-{JSON.stringify(w.requestPayload, null, 2)}
-        </pre>
-      </Card>
-
-      <Card className="p-4">
-        <div className="mb-2 flex items-center justify-between">
-          <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Resposta completa (JSON formatado)
-          </div>
-          <Button size="sm" variant="outline" onClick={copy}>
-            <Copy className="mr-2 h-4 w-4" />
-            Copiar JSON
-          </Button>
-        </div>
-        <pre className="max-h-[520px] overflow-auto rounded-md bg-background/60 p-3 text-xs">
-{pretty}
-        </pre>
-      </Card>
-    </div>
-  );
-}
-
-function MetaCard({
-  icon,
-  label,
-  value,
-  mono,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  mono?: boolean;
-}) {
-  return (
-    <Card className="p-3">
-      <div className="flex items-center gap-2 text-[10px] uppercase tracking-wide text-muted-foreground">
-        <span className="text-primary">{icon}</span>
-        {label}
-      </div>
-      <div className={`mt-1 truncate text-sm ${mono ? "font-mono" : "font-semibold"}`} title={value}>
-        {value}
-      </div>
-    </Card>
-  );
-}
 
 function downloadJson(result: AnalysisResult) {
   const blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
