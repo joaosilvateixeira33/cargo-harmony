@@ -15,6 +15,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { OceanBackground } from "@/components/OceanBackground";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 function NotFoundComponent() {
   return (
@@ -95,10 +96,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const themeScript = `(function(){try{var t=localStorage.getItem('nexuscargo:theme');if(!t){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches?'light':'dark';}var r=document.documentElement;if(t==='light'){r.classList.add('light');}r.style.colorScheme=t;}catch(e){}})();`;
   return (
     <html lang="pt-BR">
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
         {children}
@@ -127,6 +130,9 @@ function RootComponent() {
                 <span className="hidden text-xs text-muted-foreground sm:inline">
                   · Manifest Intelligence Platform
                 </span>
+              </div>
+              <div className="ml-auto flex items-center gap-1">
+                <ThemeToggle />
               </div>
             </header>
             <main className="flex-1">
