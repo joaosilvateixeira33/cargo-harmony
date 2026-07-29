@@ -68,10 +68,10 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border">
-        <div className="flex items-center gap-2 px-2 py-2 text-xs text-muted-foreground">
-          <Anchor className="h-3.5 w-3.5" />
-          {!collapsed && <span>v1.0 · Ancorado</span>}
+      <SidebarFooter className="overflow-hidden border-t border-sidebar-border">
+        <div className={`flex items-center gap-2 overflow-hidden py-2 text-xs text-muted-foreground ${collapsed ? "justify-center px-0" : "px-2"}`}>
+          <Anchor className="h-3.5 w-3.5 shrink-0" />
+          {!collapsed && <span className="truncate">v1.0 · Ancorado</span>}
         </div>
       </SidebarFooter>
     </Sidebar>
