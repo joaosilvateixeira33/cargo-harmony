@@ -1,6 +1,16 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Clock, FileDown, Trash2, ArrowRight, Upload, PackageSearch } from "lucide-react";
+import {
+  Clock,
+  FileDown,
+  Trash2,
+  Upload,
+  PackageSearch,
+  Eye,
+  Download,
+  MoreVertical,
+  FileText,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,6 +24,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   clearHistory,
   deleteAnalysis,
   loadHistory,
@@ -24,6 +41,7 @@ import {
   type AnalysisResult,
 } from "@/lib/manifest";
 import { generatePdfReport } from "@/lib/pdf-report";
+import { downloadJson } from "@/lib/downloads";
 
 export const Route = createFileRoute("/historico")({
   head: () => ({
@@ -46,6 +64,7 @@ export const Route = createFileRoute("/historico")({
 
 function HistoryPage() {
   const [items, setItems] = useState<AnalysisResult[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const load = () => setItems(loadHistory());
@@ -153,21 +172,97 @@ function HistoryPage() {
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-1">
+                      {/* Desktop actions */}
+                      <div className="hidden justify-end gap-2 sm:flex">
                         <Button
                           size="sm"
-                          variant="outline"
-                          onClick={() => generatePdfReport(a)}
+                          onClick={() =>
+                            navigate({
+                              to: "/historico/$id/relatorio",
+                              params: { id: a.id },
+                            })
+                          }
                         >
-                          <FileDown className="h-4 w-4" />
+                          <Eye className="mr-1 h-4 w-4" />
+                          Rever relatório
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => deleteAnalysis(a.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() =>
+                                navigate({
+                                  to: "/historico/$id/relatorio",
+                                  params: { id: a.id },
+                                })
+                              }
+                            >
+                              <FileText className="mr-2 h-4 w-4" /> Ver análise
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => generatePdfReport(a)}>
+                              <FileDown className="mr-2 h-4 w-4" /> Gerar PDF
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => downloadJson(a)}>
+                              <Download className="mr-2 h-4 w-4" /> Baixar JSON
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => deleteAnalysis(a.id)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                      {/* Mobile menu */}
+                      <div className="flex justify-end sm:hidden">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() =>
+                                navigate({
+                                  to: "/historico/$id/relatorio",
+                                  params: { id: a.id },
+                                })
+                              }
+                            >
+                              <Eye className="mr-2 h-4 w-4" /> Rever relatório
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                navigate({
+                                  to: "/historico/$id/relatorio",
+                                  params: { id: a.id },
+                                })
+                              }
+                            >
+                              <FileText className="mr-2 h-4 w-4" /> Ver análise
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => generatePdfReport(a)}>
+                              <FileDown className="mr-2 h-4 w-4" /> Gerar PDF
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => downloadJson(a)}>
+                              <Download className="mr-2 h-4 w-4" /> Baixar JSON
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => deleteAnalysis(a.id)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -176,13 +271,6 @@ function HistoryPage() {
             </TableBody>
           </Table>
         </Card>
-      )}
-
-      {items.length > 0 && (
-        <p className="mt-4 flex items-center gap-1 text-xs text-muted-foreground">
-          Dica: clique em <ArrowRight className="h-3 w-3" /> gerar o PDF a partir de qualquer
-          análise anterior.
-        </p>
       )}
     </div>
   );
