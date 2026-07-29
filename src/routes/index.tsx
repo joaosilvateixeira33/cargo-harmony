@@ -280,11 +280,10 @@ function ResultsView({ result, onReset }: { result: AnalysisResult; onReset: () 
       </Card>
 
       <Tabs defaultValue="itens" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:w-auto sm:grid-cols-4">
+        <TabsList className={`grid w-full sm:w-auto ${conforming ? "grid-cols-2" : "grid-cols-3"}`}>
           <TabsTrigger value="itens">Itens</TabsTrigger>
           {!conforming && <TabsTrigger value="divergencias">Divergências</TabsTrigger>}
           <TabsTrigger value="info">Manifesto</TabsTrigger>
-          <TabsTrigger value="webhook">Webhook</TabsTrigger>
         </TabsList>
 
         <TabsContent value="itens" className="mt-4">
@@ -299,10 +298,6 @@ function ResultsView({ result, onReset }: { result: AnalysisResult; onReset: () 
 
         <TabsContent value="info" className="mt-4">
           <InfoPanel info={result.info} containers={kpis.containerList} />
-        </TabsContent>
-
-        <TabsContent value="webhook" className="mt-4">
-          <WebhookPanel result={result} />
         </TabsContent>
       </Tabs>
     </div>
