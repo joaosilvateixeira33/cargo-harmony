@@ -53,4 +53,4 @@ A espinha dorsal da nossa aplicação roda em um cenário totalmente automatizad
 4. Verifique a tela de relatório com o cruzamento automático dos dados!
 
 ---
-*Feito pela Equipe Katharine Johnson*
+*Feito pela Equipe Katherine Johnson*
