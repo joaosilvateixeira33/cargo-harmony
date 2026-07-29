@@ -26,13 +26,13 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border">
-      <SidebarHeader className="border-b border-sidebar-border">
-        <div className="flex items-center gap-2 px-2 py-3">
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary ring-1 ring-primary/30">
-            <Ship className="h-5 w-5" />
+      <SidebarHeader className="overflow-hidden border-b border-sidebar-border">
+        <div className={`flex items-center gap-2 overflow-hidden py-3 ${collapsed ? "justify-center px-0" : "px-2"}`}>
+          <div className={`grid shrink-0 place-items-center rounded-lg bg-primary/15 text-primary ring-1 ring-primary/30 ${collapsed ? "h-8 w-8" : "h-9 w-9"}`}>
+            <Ship className={collapsed ? "h-4 w-4" : "h-5 w-5"} />
           </div>
           {!collapsed && (
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-bold tracking-tight text-sidebar-foreground">
                 NexusCargo
               </div>
@@ -68,10 +68,10 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border">
-        <div className="flex items-center gap-2 px-2 py-2 text-xs text-muted-foreground">
-          <Anchor className="h-3.5 w-3.5" />
-          {!collapsed && <span>v1.0 · Ancorado</span>}
+      <SidebarFooter className="overflow-hidden border-t border-sidebar-border">
+        <div className={`flex items-center gap-2 overflow-hidden py-2 text-xs text-muted-foreground ${collapsed ? "justify-center px-0" : "px-2"}`}>
+          <Anchor className="h-3.5 w-3.5 shrink-0" />
+          {!collapsed && <span className="truncate">v1.0 · Ancorado</span>}
         </div>
       </SidebarFooter>
     </Sidebar>
