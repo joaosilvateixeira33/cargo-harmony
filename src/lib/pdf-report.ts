@@ -124,7 +124,7 @@ export function generatePdfReport(result: AnalysisResult) {
       head: [["Campo", "Valor"]],
       body: infoEntries.map(([k, v]) => [k, String(v)]),
       styles: { fontSize: 9 },
-      headStyles: { fillColor: [...NAVY] as unknown as number[] },
+      headStyles: { fillColor: [NAVY[0], NAVY[1], NAVY[2]] as [number, number, number] },
       margin: { left: 40, right: 40 },
     });
     y = (doc as any).lastAutoTable.finalY + 16;
@@ -147,15 +147,15 @@ export function generatePdfReport(result: AnalysisResult) {
       itemStatus(i) || "-",
     ]),
     styles: { fontSize: 9 },
-    headStyles: { fillColor: [...NAVY] as unknown as number[] },
+    headStyles: { fillColor: [NAVY[0], NAVY[1], NAVY[2]] as [number, number, number] },
     didParseCell: (data) => {
       if (data.section === "body" && data.column.index === 5) {
         const status = String(data.cell.raw ?? "");
         if (isOk(status)) {
-          data.cell.styles.textColor = [...GREEN] as unknown as number[];
+          data.cell.styles.textColor = [GREEN[0], GREEN[1], GREEN[2]] as [number, number, number];
           data.cell.styles.fontStyle = "bold";
         } else if (status) {
-          data.cell.styles.textColor = [...RED] as unknown as number[];
+          data.cell.styles.textColor = [RED[0], RED[1], RED[2]] as [number, number, number];
           data.cell.styles.fontStyle = "bold";
         }
       }
@@ -180,7 +180,7 @@ export function generatePdfReport(result: AnalysisResult) {
       head: [["Código", "Campo", "Esperado", "Recebido"]],
       body: divs.flatMap((i) => rowsForDivergence(i)),
       styles: { fontSize: 9 },
-      headStyles: { fillColor: [...RED] as unknown as number[] },
+      headStyles: { fillColor: [RED[0], RED[1], RED[2]] as [number, number, number] },
       margin: { left: 40, right: 40 },
     });
   }
