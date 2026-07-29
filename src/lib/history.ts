@@ -28,6 +28,10 @@ export function loadHistory(): AnalysisResult[] {
   }
 }
 
+export function getHistoryItemById(id: string): AnalysisResult | null {
+  return loadHistory().find((a) => a.id === id) ?? null;
+}
+
 export function saveAnalysis(result: AnalysisResult) {
   if (typeof window === "undefined") return;
   const list = loadHistory();

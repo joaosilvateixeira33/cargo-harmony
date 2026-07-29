@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HistoricoIdRelatorioRouteImport } from './routes/historico.$id.relatorio'
 
 const HistoricoRoute = HistoricoRouteImport.update({
   id: '/historico',
@@ -28,35 +29,48 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoricoIdRelatorioRoute = HistoricoIdRelatorioRouteImport.update({
+  id: '/$id/relatorio',
+  path: '/$id/relatorio',
+  getParentRoute: () => HistoricoRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
-  '/historico': typeof HistoricoRoute
+  '/historico': typeof HistoricoRouteWithChildren
+  '/historico/$id/relatorio': typeof HistoricoIdRelatorioRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
-  '/historico': typeof HistoricoRoute
+  '/historico': typeof HistoricoRouteWithChildren
+  '/historico/$id/relatorio': typeof HistoricoIdRelatorioRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
-  '/historico': typeof HistoricoRoute
+  '/historico': typeof HistoricoRouteWithChildren
+  '/historico/$id/relatorio': typeof HistoricoIdRelatorioRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/configuracoes' | '/historico'
+  fullPaths: '/' | '/configuracoes' | '/historico' | '/historico/$id/relatorio'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/configuracoes' | '/historico'
-  id: '__root__' | '/' | '/configuracoes' | '/historico'
+  to: '/' | '/configuracoes' | '/historico' | '/historico/$id/relatorio'
+  id:
+    | '__root__'
+    | '/'
+    | '/configuracoes'
+    | '/historico'
+    | '/historico/$id/relatorio'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
-  HistoricoRoute: typeof HistoricoRoute
+  HistoricoRoute: typeof HistoricoRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -82,13 +96,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/historico/$id/relatorio': {
+      id: '/historico/$id/relatorio'
+      path: '/$id/relatorio'
+      fullPath: '/historico/$id/relatorio'
+      preLoaderRoute: typeof HistoricoIdRelatorioRouteImport
+      parentRoute: typeof HistoricoRoute
+    }
   }
 }
+
+interface HistoricoRouteChildren {
+  HistoricoIdRelatorioRoute: typeof HistoricoIdRelatorioRoute
+}
+
+const HistoricoRouteChildren: HistoricoRouteChildren = {
+  HistoricoIdRelatorioRoute: HistoricoIdRelatorioRoute,
+}
+
+const HistoricoRouteWithChildren = HistoricoRoute._addFileChildren(
+  HistoricoRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
-  HistoricoRoute: HistoricoRoute,
+  HistoricoRoute: HistoricoRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
