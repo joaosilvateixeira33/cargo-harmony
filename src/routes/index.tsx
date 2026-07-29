@@ -61,7 +61,9 @@ function IndexPage() {
     try {
       const { items, info, webhook } = await sendManifest(file);
       const analysis: AnalysisResult = {
-        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        id: typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         filename: file.name,
         createdAt: new Date().toISOString(),
         items,
