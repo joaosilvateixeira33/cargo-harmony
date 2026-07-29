@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HistoricoIdRouteImport } from './routes/historico.$id'
 import { Route as HistoricoIdRelatorioRouteImport } from './routes/historico.$id.relatorio'
 
 const HistoricoRoute = HistoricoRouteImport.update({
@@ -29,22 +30,29 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const HistoricoIdRelatorioRoute = HistoricoIdRelatorioRouteImport.update({
-  id: '/$id/relatorio',
-  path: '/$id/relatorio',
+const HistoricoIdRoute = HistoricoIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
   getParentRoute: () => HistoricoRoute,
+} as any)
+const HistoricoIdRelatorioRoute = HistoricoIdRelatorioRouteImport.update({
+  id: '/relatorio',
+  path: '/relatorio',
+  getParentRoute: () => HistoricoIdRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRouteWithChildren
+  '/historico/$id': typeof HistoricoIdRouteWithChildren
   '/historico/$id/relatorio': typeof HistoricoIdRelatorioRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRouteWithChildren
+  '/historico/$id': typeof HistoricoIdRouteWithChildren
   '/historico/$id/relatorio': typeof HistoricoIdRelatorioRoute
 }
 export interface FileRoutesById {
@@ -52,18 +60,30 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/historico': typeof HistoricoRouteWithChildren
+  '/historico/$id': typeof HistoricoIdRouteWithChildren
   '/historico/$id/relatorio': typeof HistoricoIdRelatorioRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/configuracoes' | '/historico' | '/historico/$id/relatorio'
+  fullPaths:
+    | '/'
+    | '/configuracoes'
+    | '/historico'
+    | '/historico/$id'
+    | '/historico/$id/relatorio'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/configuracoes' | '/historico' | '/historico/$id/relatorio'
+  to:
+    | '/'
+    | '/configuracoes'
+    | '/historico'
+    | '/historico/$id'
+    | '/historico/$id/relatorio'
   id:
     | '__root__'
     | '/'
     | '/configuracoes'
     | '/historico'
+    | '/historico/$id'
     | '/historico/$id/relatorio'
   fileRoutesById: FileRoutesById
 }
@@ -96,22 +116,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/historico/$id': {
+      id: '/historico/$id'
+      path: '/$id'
+      fullPath: '/historico/$id'
+      preLoaderRoute: typeof HistoricoIdRouteImport
+      parentRoute: typeof HistoricoRoute
+    }
     '/historico/$id/relatorio': {
       id: '/historico/$id/relatorio'
-      path: '/$id/relatorio'
+      path: '/relatorio'
       fullPath: '/historico/$id/relatorio'
       preLoaderRoute: typeof HistoricoIdRelatorioRouteImport
-      parentRoute: typeof HistoricoRoute
+      parentRoute: typeof HistoricoIdRoute
     }
   }
 }
 
-interface HistoricoRouteChildren {
+interface HistoricoIdRouteChildren {
   HistoricoIdRelatorioRoute: typeof HistoricoIdRelatorioRoute
 }
 
-const HistoricoRouteChildren: HistoricoRouteChildren = {
+const HistoricoIdRouteChildren: HistoricoIdRouteChildren = {
   HistoricoIdRelatorioRoute: HistoricoIdRelatorioRoute,
+}
+
+const HistoricoIdRouteWithChildren = HistoricoIdRoute._addFileChildren(
+  HistoricoIdRouteChildren,
+)
+
+interface HistoricoRouteChildren {
+  HistoricoIdRoute: typeof HistoricoIdRouteWithChildren
+}
+
+const HistoricoRouteChildren: HistoricoRouteChildren = {
+  HistoricoIdRoute: HistoricoIdRouteWithChildren,
 }
 
 const HistoricoRouteWithChildren = HistoricoRoute._addFileChildren(
