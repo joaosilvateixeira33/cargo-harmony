@@ -7,6 +7,7 @@ import {
   type AnalysisResult,
   type ManifestItem,
 } from "./manifest";
+import { buildItemDifferences } from "./divergences";
 
 const NAVY = [22, 40, 66] as const;
 const CYAN = [45, 156, 200] as const;
