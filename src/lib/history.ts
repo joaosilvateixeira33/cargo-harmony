@@ -4,6 +4,24 @@ const KEY = "nexusCargo:history";
 const LAST_KEY = "nexusCargo:lastAnalysis";
 const LEGACY_KEYS = ["nexuscargo:history"];
 
+function genId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function migrateHistoryItems(items: AnalysisResult[]): { items: AnalysisResult[]; changed: boolean } {
+  let changed = false;
+  const migrated = items.map((item) => {
+    if (!item || typeof item !== "object") return item;
+    if (!item.id) {
+      changed = true;
+      return { ...item, id: genId() };
+    }
+    return item;
+  });
+  return { items: migrated, changed };
+}
+
 export function loadHistory(): AnalysisResult[] {
   if (typeof window === "undefined") return [];
   try {
@@ -22,14 +40,26 @@ export function loadHistory(): AnalysisResult[] {
     }
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    const list = Array.isArray(parsed) ? (parsed as AnalysisResult[]) : [];
+    const { items, changed } = migrateHistoryItems(list);
+    if (changed) {
+      window.localStorage.setItem(KEY, JSON.stringify(items));
+    }
+    return items;
   } catch {
     return [];
   }
 }
 
 export function getHistoryItemById(id: string): AnalysisResult | null {
-  return loadHistory().find((a) => a.id === id) ?? null;
+  const normalized = (() => {
+    try {
+      return decodeURIComponent(String(id));
+    } catch {
+      return String(id);
+    }
+  })();
+  return loadHistory().find((a) => String(a.id) === normalized) ?? null;
 }
 
 export function saveAnalysis(result: AnalysisResult) {
