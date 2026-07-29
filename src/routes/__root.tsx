@@ -129,6 +129,9 @@ function RootComponent() {
                   · Manifest Intelligence Platform
                 </span>
               </div>
+              <div className="ml-auto flex items-center gap-1">
+                <ThemeToggle />
+              </div>
             </header>
             <main className="flex-1">
               <Outlet />
