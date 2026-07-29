@@ -144,6 +144,17 @@ function HistoryPage() {
               {items.map((a) => {
                 const k = computeKpis(a.items);
                 const ok = isFullyConforming(a.items);
+                const goAnalysis = (e?: React.MouseEvent) => {
+                  e?.stopPropagation();
+                  navigate({ to: "/historico/$id", params: { id: String(a.id) } });
+                };
+                const goReport = (e?: React.MouseEvent) => {
+                  e?.stopPropagation();
+                  navigate({
+                    to: "/historico/$id/relatorio",
+                    params: { id: String(a.id) },
+                  });
+                };
                 return (
                   <TableRow key={a.id}>
                     <TableCell className="max-w-[220px] truncate font-medium">
@@ -174,35 +185,21 @@ function HistoryPage() {
                     <TableCell className="text-right">
                       {/* Desktop actions */}
                       <div className="hidden justify-end gap-2 sm:flex">
-                        <Button
-                          size="sm"
-                          onClick={() =>
-                            navigate({
-                              to: "/historico/$id/relatorio",
-                              params: { id: a.id },
-                            })
-                          }
-                        >
+                        <Button type="button" size="sm" variant="outline" onClick={goAnalysis}>
+                          <FileText className="mr-1 h-4 w-4" />
+                          Ver análise
+                        </Button>
+                        <Button type="button" size="sm" onClick={goReport}>
                           <Eye className="mr-1 h-4 w-4" />
                           Rever relatório
                         </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="outline">
+                            <Button type="button" size="sm" variant="outline">
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() =>
-                                navigate({
-                                  to: "/historico/$id/relatorio",
-                                  params: { id: a.id },
-                                })
-                              }
-                            >
-                              <FileText className="mr-2 h-4 w-4" /> Ver análise
-                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => generatePdfReport(a)}>
                               <FileDown className="mr-2 h-4 w-4" /> Gerar PDF
                             </DropdownMenuItem>
@@ -223,30 +220,16 @@ function HistoryPage() {
                       <div className="flex justify-end sm:hidden">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="outline">
+                            <Button type="button" size="sm" variant="outline">
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuItem
-                              onClick={() =>
-                                navigate({
-                                  to: "/historico/$id/relatorio",
-                                  params: { id: a.id },
-                                })
-                              }
-                            >
-                              <Eye className="mr-2 h-4 w-4" /> Rever relatório
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() =>
-                                navigate({
-                                  to: "/historico/$id/relatorio",
-                                  params: { id: a.id },
-                                })
-                              }
-                            >
+                            <DropdownMenuItem onClick={() => goAnalysis()}>
                               <FileText className="mr-2 h-4 w-4" /> Ver análise
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => goReport()}>
+                              <Eye className="mr-2 h-4 w-4" /> Rever relatório
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => generatePdfReport(a)}>
                               <FileDown className="mr-2 h-4 w-4" /> Gerar PDF
