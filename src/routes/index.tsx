@@ -14,9 +14,7 @@ import {
   Download,
   FileDown,
   RefreshCw,
-  Copy,
   Clock,
-  Globe,
   ShieldCheck,
 } from "lucide-react";
 import { toast } from "sonner";
