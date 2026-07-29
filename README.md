@@ -16,6 +16,10 @@ Construímos uma aplicação web amigável onde o operador faz o upload do Bill 
 3. **Validação:** A plataforma exibe um relatório imediato apontando "Matches" (ok), divergências (peso, quantidade) e itens não declarados.
 
 ---
+## 🔗 Links uteis
+* **Site no ar**: (https://nexus-cargo-insight.lovable.app)
+* **Make**: (https://us2.make.com/public/shared-scenario/jb7LZeeQoRo/hackthon)
+---
 
 ## 🛠️ Tecnologias Utilizadas
 
