@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Ship, Upload, History, Anchor } from "lucide-react";
+import { Ship, Upload, History, Anchor, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,7 +17,8 @@ import {
 const items = [
   { title: "Nova análise", url: "/", icon: Upload },
   { title: "Histórico", url: "/historico", icon: History },
-];
+  { title: "Configurações", url: "/configuracoes", icon: Settings },
+] as const;
 
 export function AppSidebar() {
   const { state } = useSidebar();
